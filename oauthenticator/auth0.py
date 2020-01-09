@@ -9,6 +9,7 @@ The following environment variables may be used for configuration:
     OAUTH_CLIENT_ID - Your client id
     OAUTH_CLIENT_SECRET - Your client secret
     OAUTH_CALLBACK_URL - Your callback handler URL
+    OAUTH_USERNAME_KEY - Key for extracting user, defaults to email
 
 Additionally, if you are concerned about your secrets being exposed by
 an env dump(I know I am!) you can set the client_secret, client_id and
@@ -20,6 +21,7 @@ One instance of this could be adding the following to your jupyterhub_config.py 
   c.Auth0OAuthenticator.client_secret = 'YOUR_CLIENT_SECRET'
   c.Auth0OAuthenticator.oauth_callback_url = 'YOUR_CALLBACK_URL'
   c.Auth0OAuthenticator.scope = ['openid','profile','email']
+
 
 If you are using the environment variable config, all you should need to
 do is define them in the environment then add the following line to 
@@ -41,6 +43,7 @@ from jupyterhub.auth import LocalAuthenticator
 from .oauth2 import OAuthLoginHandler, OAuthenticator
 
 AUTH0_SUBDOMAIN = os.getenv('AUTH0_SUBDOMAIN')
+OAUTH_USERNAME_KEY = os.getenv('OAUTH_USERNAME_KEY', "email")
 
 class Auth0Mixin(OAuth2Mixin):
     _OAUTH_AUTHORIZE_URL = "https://%s.auth0.com/authorize" % AUTH0_SUBDOMAIN
@@ -95,7 +98,7 @@ class Auth0OAuthenticator(OAuthenticator):
         resp_json = json.loads(resp.body.decode('utf8', 'replace'))
 
         return {
-            'name': resp_json["email"],
+            'name': resp_json[OAUTH_USERNAME_KEY],
             'auth_state': {
                 'access_token': access_token,
                 'auth0_user': resp_json,
