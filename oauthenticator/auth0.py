@@ -96,6 +96,7 @@ class Auth0OAuthenticator(OAuthenticator):
                           )
         resp = await http_client.fetch(req)
         resp_json = json.loads(resp.body.decode('utf8', 'replace'))
+        print("response from auth0:", resp_json)
 
         return {
             'name': resp_json[OAUTH_USERNAME_KEY],
